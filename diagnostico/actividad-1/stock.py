@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
-import dbtry as db
+import database as db
 
 class App(tk.Tk):
     def __init__(self):
