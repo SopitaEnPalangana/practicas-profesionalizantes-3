@@ -1,4 +1,5 @@
 import { URL } from 'node:url';
+import { readFileSync } from 'node:fs';
 import {config} from './config.mjs'
 import { login, register } from './auth.mjs'
 
@@ -14,6 +15,7 @@ function default_handler(request, response)
     {
         response.writeHead(500);
         response.end('Error interno: No se pudo cargar la vista principal.');
+        console.log(error);
     }
 }
 

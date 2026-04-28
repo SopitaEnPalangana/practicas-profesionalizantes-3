@@ -8,7 +8,7 @@ function default_config()
         {
             ip: '127.0.0.1',
             port: 3000,
-            default_path: './default.html'
+            default_path: 'frontend/default.html'
         },
 
         database:

@@ -2,7 +2,7 @@
   "name": "v1",
   "version": "1.0.0",
   "type": "module",
-  "main": "index.js",
+  "main": "main.mjs",
   "scripts": {
     "main": "node backend/main.mjs"
   },
