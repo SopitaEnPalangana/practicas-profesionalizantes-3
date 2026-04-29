@@ -35,10 +35,20 @@ async function login_handler(request, response)
 
 async function register_handler(request, response)
 {
-    if ( request.method == "GET")  //redundant?
+    if ( request.method == "POST")
     {
-        const url = new URL(request.url, 'http://' + config.server.ip);
-        const input = Object.fromEntries(url.searchParams);
+        const body = await new Promise((resolve, reject) => {
+            let data = '';
+            request.on('data', chunk => {
+                data += chunk;
+            });
+            request.on('end', () => {
+                resolve(data);
+            });
+            request.on('error', reject);
+        });
+
+        const input = Object.fromEntries(new URLSearchParams(body));
 
         const output = await register(input);
         console.log('Nuevo usuario registrado: ', output.result);
