@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="es">
+	<head>
+		<meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Botoneria</title>
+	</head>
+	<body></body>
+
+	<script type="text/javascript">
+		class Botoneria extends HTMLElement
+		{
+			constructor()
+			{
+				super()
+
+				//Register Form
+				this.registerForm = document.createElement('form');
+				this.registerForm.action = "/register";
+				this.registerForm.method = "post";
+				this.regTitle = document.createElement('h1');
+				this.regTitle.textContent = 'User Sign in';
+
+				this.nameLabel = document.createElement('label');
+				this.nameLabel.textContent = 'Username: ';
+				this.nameEntry = document.createElement('input');
+				this.nameEntry.name = 'username';
+				this.nameEntry.placeholder = 'Username here';
+				this.passLabel = document.createElement('label')
+				this.passLabel.textContent = 'Password: ';
+				this.passwordEntry = document.createElement('input');
+				this.passwordEntry.name = 'password';
+				this.passwordEntry.placeholder = 'Password here';
+				this.submitBtn = document.createElement('button');
+				this.submitBtn.innerText = 'Sign in';
+				this.submitBtn.type = "submit";
+				
+				this.registerForm.appendChild(this.regTitle);
+				this.registerForm.appendChild(this.nameLabel);
+				this.registerForm.appendChild(this.nameEntry);
+				this.registerForm.appendChild(this.passLabel);
+				this.registerForm.appendChild(this.passwordEntry);
+				this.registerForm.appendChild(this.submitBtn);
+				
+				//Login Form
+				this.loginForm = document.createElement('form');
+				this.loginForm.action = "/login";
+				this.loginForm.method = "get";
+				this.loginTitle = document.createElement('h1');
+				this.loginTitle.textContent = 'User Login'
+
+				this.logName = document.createElement('label');
+				this.logName.textContent = 'Username: ';
+				this.logNameEntry = document.createElement('input');
+				this.logNameEntry.placeholder = 'your username';
+				this.logNameEntry.name = 'username';
+				this.logPass = document.createElement('label');
+				this.logPass.textContent = 'Password: ';
+				this.logPassEntry = document.createElement('input');
+				this.logPassEntry.name = 'password';
+				this.logPassEntry.placeholder = 'your password';
+				this.loginBtn = document.createElement('button');
+				this.loginBtn.innerText = 'Log in';
+				this.loginBtn.type = "submit";
+
+				this.loginForm.appendChild(this.loginTitle);
+				this.loginForm.appendChild(this.logName);
+				this.loginForm.appendChild(this.logNameEntry);
+				this.loginForm.appendChild(this.logPass);
+				this.loginForm.appendChild(this.logPassEntry);
+				this.loginForm.appendChild(this.loginBtn);
+
+				//Add user to a grupo
+				this.editUser = document.createElement('div');
+				this.editUserTitle = document.createElement('h1');
+				this.editUserTitle.textContent = 'Users';
+
+				this.listUsers = document.createElement('button');
+				this.listUsers.innerText = 'List all users';
+				this.addUsertoGroup = document.createElement('button');
+				this.addUsertoGroup.innerText = 'Add User to a Group';
+				this.editUsername = document.createElement('button');
+				this.editUsername.innerText = 'Edit Username';
+				this.deleteUser = document.createElement('button');
+				this.deleteUser.innerText = 'Delete User';
+
+				this.editUser.appendChild(this.editUserTitle);
+				this.editUser.appendChild(this.listUsers);
+				this.editUser.appendChild(this.addUsertoGroup);
+				this.editUser.appendChild(this.editUsername);
+				this.editUser.appendChild(this.deleteUser);
+
+				//Crud de grupos
+				this.groupsCrud = document.createElement('div');
+				this.groupsTitle = document.createElement('h1');
+				this.groupsTitle.textContent = 'Groups';
+
+				this.listGroups = document.createElement('button');
+				this.listGroups.innerText = 'List all groups';
+				this.createGroup = document.createElement('button');
+				this.createGroup.innerText = 'Create new group';
+				this.editGroupAccess = document.createElement('button');
+				this.editGroupAccess.innerText = 'Edit Groups Access';
+				this.deleteGroup = document.createElement('button');
+				this.deleteGroup.innerText = 'Delete Group';
+
+				this.groupsCrud.appendChild(this.groupsTitle);
+				this.groupsCrud.appendChild(this.listGroups);
+				this.groupsCrud.appendChild(this.createGroup);
+				this.groupsCrud.appendChild(this.editGroupAccess);
+				this.groupsCrud.appendChild(this.deleteGroup);
+
+				//crud de members
+				this.membersCrud = document.createElement('div');
+				this.membersTitle = document.createElement('h1');
+				this.membersTitle.textContent = 'Members';
+
+				this.membersCrud.appendChild(this.membersTitle);
+
+				//crud de accesses
+				this.accessCrud = document.createElement('div');
+				this.accessTitle = document.createElement('h1');
+				this.accessTitle.textContent = 'Access';
+				this.showAccess = document.createElement('button');
+				this.showAccess.innerText = 'Show Access list';
+				this.grantAccess = document.createElement('button');
+				this.grantAccess.innerText = 'Grant new access';
+				this.cancelAccess = document.createElement('button');
+				this.cancelAccess.innerText = 'Cancel a groups access';
+
+				this.accessCrud.appendChild(this.accessTitle);
+				this.accessCrud.appendChild(this.showAccess);
+				this.accessCrud.appendChild(this.grantAccess);
+				this.accessCrud.appendChild(this.cancelAccess);
+
+				//crud de Endpoints
+				this.endpointsCrud = document.createElement('div');
+				this.endpointTitle = document.createElement('h1');
+				this.endpointTitle.textContent = 'Endpoints';
+				this.listEndpoints = document.createElement('button');
+				this.listEndpoints.innerText = 'List posible endpoints';
+				this.createEndpoint = document.createElement('button');
+				this.createEndpoint.innerText = 'Create new Endpoint';
+				this.editEndpoint = document.createElement('button');
+				this.editEndpoint.innerText = 'Edit Endpoints path';
+				this.deleteEndpoint = document.createElement('button');
+				this.deleteEndpoint.innerText = 'Delete Endpoint';
+				this.endpointsCrud.appendChild(this.endpointTitle);
+				this.endpointsCrud.appendChild(this.listEndpoints);
+				this.endpointsCrud.appendChild(this.createEndpoint);
+				this.endpointsCrud.appendChild(this.editEndpoint);
+				this.endpointsCrud.appendChild(this.deleteEndpoint);
+
+				this.contentsdiv = document.createElement('div');
+				this.contentsdiv.textContent = "";
+				//appending all childs to be appended
+				this.appendChild(this.registerForm);
+				this.appendChild(this.loginForm);
+				this.appendChild(this.editUser);
+				this.appendChild(this.groupsCrud);
+				this.appendChild(this.membersCrud);
+				this.appendChild(this.accessCrud);
+				this.appendChild(this.endpointsCrud);
+				this.appendChild(this.contentsdiv);
+			}
+
+			onregisterclick(){console.log("registro ejecutado");}
+			onloginclick(){console.log("login ejecutado");}
+
+			onlistUsersclick()
+			{
+				console.log("Listando all users");
+				fetch("/userslist");
+				//goes to backend, bring data on a json and display it. just like the login before.
+			}
+			onassignGroupclick()
+			{
+				console.log("Da opciones de grupos para asignar al usuario");
+				//prompt() ???? para pedir el usuario? 
+				this.contentsdiv.textContent = "Textooooooo";
+			}
+			oneditusernameclick(){console.log("Edita nombre del usuario");}
+			ondeleteuserclick(){console.log("Eliminando un usuario");}
+
+			onlistgroupsclick(){console.log("Listando los grupos y sus accesos");}
+			oncreategroupclick(){console.log("Creando nuevo grupo");}
+			oneditgroupaccessclick(){console.log("Cambiando accesos de un grupo");}
+			ondeletegroupclick(){console.log("Eliminando grupo");}
+
+			onshowaccessclick(){console.log("Showing granted accesses to groups");}
+			ongrantaccessclick(){console.log("Granting access to an endpoint");}
+			oncancelaccessclick(){console.log("Cancelling a groups access to an endpoint");}
+
+			onlistenpointsclick(){console.log("Listando todos los endpoints");}
+			oncreateenpointclick(){console.log("Creando nuevo endpoint");}
+			oneditendpointclick(){console.log("Editando el path de un endpoint");}
+			ondeleteendpointclick(){console.log("Eliminando un Endpoint");}
+
+			connectedCallback()
+			{
+				this.submitBtn.onclick = this.onregisterclick.bind(this);
+				this.loginBtn.onclick = this.onloginclick.bind(this);
+				this.listUsers.onclick = this.onlistUsersclick.bind(this);
+				this.addUsertoGroup.onclick = this.onassignGroupclick.bind(this);
+				this.editUsername.onclick = this.oneditusernameclick.bind(this);
+				this.deleteUser.onclick = this.ondeleteuserclick.bind(this);
+
+				this.listGroups.onclick = this.onlistUsersclick.bind(this);
+				this.createGroup.onclick = this.oncreategroupclick.bind(this);
+				this.editGroupAccess.onclick = this.oneditgroupaccessclick.bind(this);
+				this.deleteGroup.onclick = this.ondeletegroupclick.bind(this);
+
+				this.showAccess.onclick = this.onshowaccessclick.bind(this);
+				this.grantAccess.onclick = this.ongrantaccessclick.bind(this);
+				this.cancelAccess.onclick = this.oncancelaccessclick.bind(this);
+
+				this.listEndpoints.onclick = this.onlistenpointsclick.bind(this);
+				this.createEndpoint.onclick = this.oncreateenpointclick.bind(this);
+				this.editEndpoint.onclick = this.oneditendpointclick.bind(this);
+				this.deleteEndpoint.onclick = this.ondeleteendpointclick.bind(this);
+			}
+
+			disconnectedCallback()
+			{
+				this.submitBtn.onclick = null;
+				this.loginBtn.onclick = null;
+
+				this.listUsers.onclick = null;
+				this.addUsertoGroup.onclick = null;
+				this.editUsername.onclick = null;
+				this.deleteUser.onclick = null;
+
+				this.listGroups.onclick = null;
+				this.createGroup.onclick = null;
+				this.editGroupAccess.onclick =  null;
+				this.deleteGroup.onclick = null;
+
+				this.showAccess.onclick = null;
+				this.grantAccess.onclick = null;
+				this.cancelAccess.onclick = null;
+
+				this.listEndpoints.onclick = null;
+				this.createEndpoint.onclick = null;
+				this.editEndpoint.onclick = null;
+				this.deleteEndpoint.onclick = null;
+			}
+		}
+
+		customElements.define('x-botoneria', Botoneria);
+		function main()
+		{
+			let miBotoneria = new Botoneria();
+			document.body.appendChild(miBotoneria);
+		}
+
+		window.onload = main;
+	</script>
+</html>
