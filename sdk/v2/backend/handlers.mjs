@@ -1,8 +1,7 @@
 import { URL } from 'node:url';
 import { readFileSync } from 'node:fs';
 import {config} from './config.mjs'
-import { login, register } from './auth.mjs'
-import { listusers } from './operate.mjs'
+import { login, register, listusers } from './auth.mjs'
 
 function default_handler(request, response)
 {

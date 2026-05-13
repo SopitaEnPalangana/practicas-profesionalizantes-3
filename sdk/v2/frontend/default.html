@@ -170,8 +170,15 @@
 			onlistUsersclick()
 			{
 				console.log("Listando all users");
-				fetch("/userslist");
-				//goes to backend, bring data on a json and display it. just like the login before.
+				fetch("/userslist")
+					.then(response => response.json())
+					.then(data => {
+						console.log(data);
+						if(data.status)
+						{
+							this.contentsdiv.textContent = JSON.stringify(data.result);
+						}
+					});
 			}
 			onassignGroupclick()
 			{

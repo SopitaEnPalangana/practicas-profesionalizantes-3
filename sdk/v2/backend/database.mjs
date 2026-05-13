@@ -98,12 +98,12 @@ async function show_all_users()
     const sql = `SELECT * FROM users`;
     
     return new Promise((resolve,reject) => {
-        db.get(sql, function(err, row){
+        db.all(sql, function(err, rows){
             if(err){
                 reject(err);
                 return;
             }
-            resolve(row);
+            resolve(rows);
         });
     });
 }
