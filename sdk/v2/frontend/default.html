@@ -182,26 +182,197 @@
 			}
 			onassignGroupclick()
 			{
-				console.log("Da opciones de grupos para asignar al usuario");
-				//prompt() ???? para pedir el usuario? 
-				this.contentsdiv.textContent = "Textooooooo";
+				console.log("Asignando usuario a un grupo");
+				const userID = prompt("UserID a asignar: ");
+				const groupID = prompt("ID del grupo: ");
+				if(userID && groupID)
+				{
+					fetch("/assigngroup?userID=" + userID + "&groupID=" + groupID)
+						.then(response => response.json())
+						.then(data => {
+							console.log(data);
+							if(data.status)
+								this.contentsdiv.innerText = "Usuario Asignado al grupo: " + data.result;
+							else
+								this.contentsdiv.innerText = "Error: " + data.description;
+						})
+				}
+
 			}
-			oneditusernameclick(){console.log("Edita nombre del usuario");}
-			ondeleteuserclick(){console.log("Eliminando un usuario");}
+			oneditusernameclick()
+			{
+				console.log("Editando nombre del usuario");
+				const userID = prompt("ID de usuario a editar: ");
+				const username = prompt("Nuevo nombre de usuario: ");
+				if(userID && username)
+				{
+					fetch("/editusername?id=" + userID + "&newname=" + username)
+						.then(response => response.json())
+						.then(data => {
+							console.log(data);
+							if(data.status)
+								this.contentsdiv.innerText = "Usuario editado: " + data.result;
+							else
+								this.contentsdiv.innerText = "Error: " + data.description;
+						})
+				}
+			}
+			ondeleteuserclick()
+			{
+				console.log("Eliminando un usuario");
+				const userID = prompt("ID de Usuario a eliminar: ");
 
-			onlistgroupsclick(){console.log("Listando los grupos y sus accesos");}
-			oncreategroupclick(){console.log("Creando nuevo grupo");}
+				if(userID)
+				{
+					fetch("/deleteuser?id=" + userID)
+						.then(response => response.json())
+						.then(data => {
+							console.log(data);
+							if(data.status)
+								this.contentsdiv.innerText = "Usuario eliminado: " + data.result;
+							else
+								this.contentsdiv.innerText = "Error: " + data.description;
+						})
+				}
+
+			}
+
+			onlistgroupsclick()
+			{
+				console.log("Listando los grupos");
+				fetch("/groupslist")
+					.then(response => response.json())
+					.then(data => {
+						console.log(data);
+						if(data.status)
+						{
+							this.contentsdiv.textContent = JSON.stringify(data.result);
+						}
+					});
+			}
+			oncreategroupclick()
+			{
+				console.log("Creando nuevo grupo");
+
+				const name = prompt("Nombre del grupo: ");
+				
+				if(name)
+				{
+					fetch("/creategroup?name=" + name)
+						.then(response => response.json())
+						.then(data => {
+							console.log(data);
+							if(data.status)
+								this.contentsdiv.innerText = "Grupo creado: " + data.result;
+							else
+								this.contentsdiv.innerText = "Error: " + data.description;
+						})
+				}
+			}
 			oneditgroupaccessclick(){console.log("Cambiando accesos de un grupo");}
-			ondeletegroupclick(){console.log("Eliminando grupo");}
+			ondeletegroupclick()
+			{
+				console.log("Eliminando grupo");
+				const groupID = prompt("ID de Grupo a eliminar: ");
 
-			onshowaccessclick(){console.log("Showing granted accesses to groups");}
+				if(groupID)
+				{
+					fetch("/deletegroup?id=" + groupID)
+						.then(response => response.json())
+						.then(data => {
+							console.log(data);
+							if(data.status)
+								this.contentsdiv.innerText = "Grupo eliminado: " + data.result;
+							else
+								this.contentsdiv.innerText = "Error: " + data.description;
+						})
+				}
+			}
+
+			onshowaccessclick()
+			{
+				console.log("Showing granted accesses to groups");
+				fetch("/accesslist")
+					.then(response => response.json())
+					.then(data => {
+						console.log(data);
+						if(data.status)
+						{
+							this.contentsdiv.textContent = JSON.stringify(data.result);
+						}
+					});
+			}
 			ongrantaccessclick(){console.log("Granting access to an endpoint");}
 			oncancelaccessclick(){console.log("Cancelling a groups access to an endpoint");}
 
-			onlistenpointsclick(){console.log("Listando todos los endpoints");}
-			oncreateenpointclick(){console.log("Creando nuevo endpoint");}
-			oneditendpointclick(){console.log("Editando el path de un endpoint");}
-			ondeleteendpointclick(){console.log("Eliminando un Endpoint");}
+			onlistenpointsclick()
+			{
+				console.log("Listando todos los endpoints");
+				fetch("/endpointslist")
+					.then(response => response.json())
+					.then(data => {
+						console.log(data);
+						if(data.status)
+						{
+							this.contentsdiv.textContent = JSON.stringify(data.result);
+						}
+					});
+			}
+			oncreateenpointclick()
+			{
+				console.log("Creando nuevo endpoint");
+
+				const name = prompt("path del endpoint: ");
+				
+				if(name)
+				{
+					fetch("/createendpoint?name=" + name)
+						.then(response => response.json())
+						.then(data => {
+							console.log(data);
+							if(data.status)
+								this.contentsdiv.innerText = "Endpoint creado: " + data.result;
+							else
+								this.contentsdiv.innerText = "Error: " + data.description;
+						})
+				}
+			}
+			oneditendpointclick()
+			{
+				console.log("Editando el path de un endpoint");
+				const endp = prompt("ID de endpoint a editar: ");
+				const newpath = prompt("Nuevo path: ");
+				if(endp && newpath)
+				{
+					fetch("/editpath?id=" + endp + "&newname=" + newpath)
+						.then(response => response.json())
+						.then(data => {
+							console.log(data);
+							if(data.status)
+								this.contentsdiv.innerText = "Endpoint editado: " + data.result;
+							else
+								this.contentsdiv.innerText = "Error: " + data.description;
+						})
+				}
+			}
+			ondeleteendpointclick()
+			{
+				console.log("Eliminando un Endpoint");
+				const endpID = prompt("ID de endpoint a eliminar: ");
+
+				if(endpID)
+				{
+					fetch("/deleteendpoint?id=" + endpID)
+						.then(response => response.json())
+						.then(data => {
+							console.log(data);
+							if(data.status)
+								this.contentsdiv.innerText = "Endpoint eliminado: " + data.result;
+							else
+								this.contentsdiv.innerText = "Error: " + data.description;
+						})
+				}
+			}
 
 			connectedCallback()
 			{
@@ -212,7 +383,7 @@
 				this.editUsername.onclick = this.oneditusernameclick.bind(this);
 				this.deleteUser.onclick = this.ondeleteuserclick.bind(this);
 
-				this.listGroups.onclick = this.onlistUsersclick.bind(this);
+				this.listGroups.onclick = this.onlistgroupsclick.bind(this);
 				this.createGroup.onclick = this.oncreategroupclick.bind(this);
 				this.editGroupAccess.onclick = this.oneditgroupaccessclick.bind(this);
 				this.deleteGroup.onclick = this.ondeletegroupclick.bind(this);

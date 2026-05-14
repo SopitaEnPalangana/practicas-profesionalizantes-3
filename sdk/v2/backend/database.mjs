@@ -5,13 +5,12 @@ import { config } from "./config.mjs"
 function connect_db( path ) 
 {
   const dbPath = resolve(path);
-
   const db = new sqlite3.Database(dbPath, (err) => { //second parameter is a callback, could be a separated function but an arrow one is just simpler. 
     if (err) {
       throw new Error(`Error al conectar a la base de datos: ${err.message}`);
     }
   });
-
+  db.run("PRAGMA foreign_keys = ON"); //para que funcione el ON CASCADE
   return db;
 }
 
@@ -31,8 +30,8 @@ function createDB()
         name TEXT NOT NULL
         );
         CREATE TABLE IF NOT EXISTS members (
-        user_id INTEGER NOT NULL REFERENCES users(id),
-        group_id INTEGER NOT NULL REFERENCES groups(id),
+        user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        group_id INTEGER NOT NULL REFERENCES groups(id) ON DELETE CASCADE,
         PRIMARY KEY("user_id","group_id")
         );
         CREATE TABLE IF NOT EXISTS endpoints (
@@ -46,7 +45,7 @@ function createDB()
         )`;
 
     return new Promise((resolve, reject) => {
-        db.run(sql, function (err) {
+        db.exec(sql, function (err) {
             if (err) {
                 reject(err);
                 return;
@@ -93,9 +92,16 @@ async function insertUser(username, password)
     });
 }
 
+//USERS----------------------------------------------------------
+
 async function show_all_users()
 {
-    const sql = `SELECT * FROM users`;
+    const sql = `
+        SELECT users.id, users.username, groups.name as groupname
+        FROM users
+        LEFT JOIN members ON users.id = members.user_id
+        LEFT JOIN groups ON members.group_id = groups.id
+        `;
     
     return new Promise((resolve,reject) => {
         db.all(sql, function(err, rows){
@@ -108,4 +114,216 @@ async function show_all_users()
     });
 }
 
-export{findUser, insertUser, show_all_users};
+async function edit_user(userID, new_username)
+{
+    const sql = `UPDATE users SET username = ? WHERE id = ?`;
+
+    return new Promise((resolve, reject) => {
+        db.run(sql, [new_username, userID], function (err) {
+            if(err){
+                reject(err);
+                return;
+            }
+            resolve();
+        });
+    });
+}
+
+async function delete_user(userID)
+{
+    const sql = `DELETE FROM users WHERE id = ?`;
+
+    return new Promise((resolve, reject) => {
+        db.run(sql, [userID], function (err) {
+            if(err){
+                reject(err);
+                return;
+            }
+            resolve();
+        });
+    });
+
+}
+
+//GROUPS------------------------------------------------------------
+
+async function find_group(name)
+{
+    const sql = `SELECT * FROM groups WHERE name = ?`;
+
+    return new Promise((resolve, reject) => {
+        db.get(sql, [name], function (err, row){
+            if (err) {
+                reject(err);
+                return;
+            }
+            resolve(row);
+        });
+    });
+
+}
+
+async function insert_group(name)
+{
+    const sql = `INSERT INTO groups (name) VALUES (?)`;
+
+    return new Promise((resolve, reject) => {
+        db.run(sql, [name], function (err) {
+            if (err) {
+                reject(err);
+                return;
+            }
+            resolve({ name });
+        });
+    });
+}
+
+async function show_all_groups()
+{
+    const sql = `SELECT * FROM groups`;
+    
+    return new Promise((resolve,reject) => {
+        db.all(sql, function(err, rows){
+            if(err){
+                reject(err);
+                return;
+            }
+            resolve(rows);
+        });
+    });
+}
+
+async function delete_group(groupID)
+{
+    const sql = `DELETE FROM groups WHERE id = ?`;
+
+    return new Promise((resolve, reject) => {
+        db.run(sql, [groupID], function (err) {
+            if(err){
+                reject(err);
+                return;
+            }
+            resolve();
+        });
+    });
+
+}
+
+//MEMBERS------------------------------------------------------------
+
+async function assign_member(userID, groupID)
+{
+    const sql = `INSERT INTO members (user_id, group_id) VALUES (?, ?)`;
+    return new Promise((resolve, reject) => {
+        db.run(sql, [userID, groupID], function (err) {
+            if (err) {
+                reject(err);
+                return;
+            }
+            resolve({ userID, groupID });
+        });
+    });
+}
+
+//ACCESS------------------------------------------------------------
+
+async function show_all_access()
+{
+    const sql = `SELECT * FROM access`;
+    
+    return new Promise((resolve,reject) => {
+        db.all(sql, function(err, rows){
+            if(err){
+                reject(err);
+                return;
+            }
+            resolve(rows);
+        });
+    });
+}
+
+//ENDPOINTS------------------------------------------------------------
+
+async function show_all_endpoints()
+{
+    const sql = `SELECT * FROM endpoints`;
+    
+    return new Promise((resolve,reject) => {
+        db.all(sql, function(err, rows){
+            if(err){
+                reject(err);
+                return;
+            }
+            resolve(rows);
+        });
+    });
+}
+
+async function find_endpoint(path)
+{
+    const sql = `SELECT * FROM endpoints WHERE path = ?`;
+
+    return new Promise((resolve, reject) => {
+        db.get(sql, [path], function (err, row){
+            if (err) {
+                reject(err);
+                return;
+            }
+            resolve(row);
+        });
+    });
+
+}
+
+async function insert_endpoint(path)
+{
+    const sql = `INSERT INTO endpoints (path) VALUES (?)`;
+
+    return new Promise((resolve, reject) => {
+        db.run(sql, [path], function (err) {
+            if (err) {
+                reject(err);
+                return;
+            }
+            resolve({ name });
+        });
+    });
+}
+
+async function edit_path(endp, newpath)
+{
+    const sql = `UPDATE endpoints SET path = ? WHERE id = ?`;
+
+    return new Promise((resolve, reject) => {
+        db.run(sql, [newpath, endp], function (err) {
+            if(err){
+                reject(err);
+                return;
+            }
+            resolve();
+        });
+    });
+}
+
+async function delete_endpoint(id)
+{
+    const sql = `DELETE FROM endpoints WHERE id = ?`;
+
+    return new Promise((resolve, reject) => {
+        db.run(sql, [id], function (err) {
+            if(err){
+                reject(err);
+                return;
+            }
+            resolve();
+        });
+    });
+}
+
+export{
+    findUser, insertUser, show_all_users, edit_user, delete_user,
+    find_group, insert_group, show_all_groups, delete_group,
+    assign_member,
+    show_all_access, 
+    show_all_endpoints, find_endpoint, insert_endpoint, edit_path, delete_endpoint
+};
