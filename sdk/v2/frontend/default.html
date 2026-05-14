@@ -107,7 +107,6 @@
 				this.groupsCrud.appendChild(this.groupsTitle);
 				this.groupsCrud.appendChild(this.listGroups);
 				this.groupsCrud.appendChild(this.createGroup);
-				this.groupsCrud.appendChild(this.editGroupAccess);
 				this.groupsCrud.appendChild(this.deleteGroup);
 
 				//crud de members
@@ -197,7 +196,6 @@
 								this.contentsdiv.innerText = "Error: " + data.description;
 						})
 				}
-
 			}
 			oneditusernameclick()
 			{
@@ -269,7 +267,6 @@
 						})
 				}
 			}
-			oneditgroupaccessclick(){console.log("Cambiando accesos de un grupo");}
 			ondeletegroupclick()
 			{
 				console.log("Eliminando grupo");
@@ -302,8 +299,42 @@
 						}
 					});
 			}
-			ongrantaccessclick(){console.log("Granting access to an endpoint");}
-			oncancelaccessclick(){console.log("Cancelling a groups access to an endpoint");}
+			ongrantaccessclick()
+			{
+				console.log("Granting access to an endpoint");
+				const groupID = prompt("GroupID: ");
+				const endpID = prompt("ID del endpoint: ");
+				if(groupID && endpID)
+				{
+					fetch("/newaccess?groupID=" + groupID + "&endpID=" + endpID)
+						.then(response => response.json())
+						.then(data => {
+							console.log(data);
+							if(data.status)
+								this.contentsdiv.innerText = "Acceso asignado al grupo: " + data.result;
+							else
+								this.contentsdiv.innerText = "Error: " + data.description;
+						})
+				}
+			}
+			oncancelaccessclick()
+			{
+				console.log("Cancelling a groups access to an endpoint");
+				const groupID = prompt("ID de Grupo: ");
+
+				if(groupID)
+				{
+					fetch("/cancelaccess?id=" + groupID)
+						.then(response => response.json())
+						.then(data => {
+							console.log(data);
+							if(data.status)
+								this.contentsdiv.innerText = "Acceso eliminado: " + data.result;
+							else
+								this.contentsdiv.innerText = "Error: " + data.description;
+						})
+				}
+			}
 
 			onlistenpointsclick()
 			{
@@ -322,11 +353,11 @@
 			{
 				console.log("Creando nuevo endpoint");
 
-				const name = prompt("path del endpoint: ");
+				const path = prompt("path del endpoint: ");
 				
-				if(name)
+				if(path)
 				{
-					fetch("/createendpoint?name=" + name)
+					fetch("/createendpoint?path=" + path)
 						.then(response => response.json())
 						.then(data => {
 							console.log(data);
@@ -385,7 +416,6 @@
 
 				this.listGroups.onclick = this.onlistgroupsclick.bind(this);
 				this.createGroup.onclick = this.oncreategroupclick.bind(this);
-				this.editGroupAccess.onclick = this.oneditgroupaccessclick.bind(this);
 				this.deleteGroup.onclick = this.ondeletegroupclick.bind(this);
 
 				this.showAccess.onclick = this.onshowaccessclick.bind(this);
@@ -410,7 +440,6 @@
 
 				this.listGroups.onclick = null;
 				this.createGroup.onclick = null;
-				this.editGroupAccess.onclick =  null;
 				this.deleteGroup.onclick = null;
 
 				this.showAccess.onclick = null;

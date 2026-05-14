@@ -35,12 +35,12 @@ function createDB()
         PRIMARY KEY("user_id","group_id")
         );
         CREATE TABLE IF NOT EXISTS endpoints (
-        id INTEGER NOT NULL,
-        path TEXT NOT NULL PRIMARY KEY UNIQUE
+        id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+        path TEXT NOT NULL UNIQUE
         );
         CREATE TABLE IF NOT EXISTS access (
-        group_id INTEGER NOT NULL REFERENCES groups(id),
-        endpoint_id INTEGER NOT NULL REFERENCES endpoints(id),
+        group_id INTEGER NOT NULL REFERENCES groups(id) ON DELETE CASCADE,
+        endpoint_id INTEGER NOT NULL REFERENCES endpoints(id) ON DELETE CASCADE,
         PRIMARY KEY("group_id","endpoint_id")
         )`;
 
@@ -229,7 +229,12 @@ async function assign_member(userID, groupID)
 
 async function show_all_access()
 {
-    const sql = `SELECT * FROM access`;
+    const sql = `
+        SELECT groups.name as groupname, endpoints.path as path
+        FROM access
+        LEFT JOIN groups ON access.group_id = groups.id
+        LEFT JOIN endpoints ON access.endpoint_id = endpoints.id
+        `;
     
     return new Promise((resolve,reject) => {
         db.all(sql, function(err, rows){
@@ -240,6 +245,36 @@ async function show_all_access()
             resolve(rows);
         });
     });
+}
+
+async function assign_access(groupID, endpID)
+{
+    const sql = `INSERT INTO access (group_id, endpoint_id) VALUES (?, ?)`;
+    return new Promise((resolve, reject) => {
+        db.run(sql, [groupID, endpID], function (err) {
+            if (err) {
+                reject(err);
+                return;
+            }
+            resolve({ groupID, endpID });
+        });
+    });
+}
+
+async function cancel_access(groupID, endpID)
+{
+    const sql = `DELETE FROM access WHERE group_id = ? AND endpoint_id = ?`;
+
+    return new Promise((resolve, reject) => {
+        db.run(sql, [groupID, endpID], function (err) {
+            if(err){
+                reject(err);
+                return;
+            }
+            resolve();
+        });
+    });
+
 }
 
 //ENDPOINTS------------------------------------------------------------
@@ -285,7 +320,7 @@ async function insert_endpoint(path)
                 reject(err);
                 return;
             }
-            resolve({ name });
+            resolve({ path });
         });
     });
 }
@@ -324,6 +359,6 @@ export{
     findUser, insertUser, show_all_users, edit_user, delete_user,
     find_group, insert_group, show_all_groups, delete_group,
     assign_member,
-    show_all_access, 
+    show_all_access, assign_access, cancel_access,
     show_all_endpoints, find_endpoint, insert_endpoint, edit_path, delete_endpoint
 };

@@ -2,7 +2,7 @@ import { findUser, insertUser } from "./database.mjs"
 import { show_all_users, edit_user, delete_user } from "./database.mjs";
 import { find_group, insert_group, show_all_groups, delete_group } from "./database.mjs";
 import { assign_member } from "./database.mjs";
-import { show_all_access } from "./database.mjs";
+import { show_all_access, assign_access, cancel_access } from "./database.mjs";
 import { show_all_endpoints, find_endpoint, insert_endpoint, edit_path, delete_endpoint} from "./database.mjs";
 
 //Lógica de negocio / Modelo (Son independientes de protocolos, comunicaciones y servidor)
@@ -168,6 +168,7 @@ async function deleteGroup(input)
     output.description = null;
     return output;
 }
+
 //MEMBERS------------------------------------------------------------
 
 async function assignMember(input)
@@ -209,6 +210,41 @@ async function listaccess()
         output.result = accesslist;
         output.description = null;
     }
+    return output;
+}
+
+async function assignAccess(input)
+{
+    const output =
+    {
+        status: false,
+        result: null,
+        description: 'INVALID_ASSIGNATION'  
+    };
+    //aca tiene que pasar a int, el prompt y el pasaje x el json lo toma como string
+    const newAccess = await assign_access(parseInt(input.groupID), parseInt(input.endpID));
+    if(newAccess)
+    {
+        output.status = true;
+        output.result = input.groupID, input.endpID;
+        output.description = null;
+    }
+
+    return output;
+}
+
+async function cancelAccess(input)
+{
+    const output =
+    {
+        status: false,
+        result: null,
+        description: 'FAILED_DELETE'
+    };
+    const deleted = await cancel_access(parseInt(input.groupID), parseInt(input.endpID));
+    output.status = true;
+    output.result = input.groupID;
+    output.description = null;
     return output;
 }
 
@@ -296,6 +332,6 @@ export{
     listusers, editUser, deleteUser,
     createGroup, listgroups, deleteGroup,
     assignMember,
-    listaccess, 
+    listaccess, assignAccess, cancelAccess,
     listendpoints, createEndpoint, editPath, deleteEndpoint
 };

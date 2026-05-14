@@ -5,8 +5,8 @@ import { login, register,
     listusers, editUser, deleteUser,
     createGroup, listgroups, deleteGroup,
     assignMember,
-    listaccess, 
-    listendpoints, createEndpoint, editPath, deleteEndpoint } from './auth.mjs'
+    listaccess, assignAccess, cancelAccess,
+    listendpoints, createEndpoint, editPath, deleteEndpoint} from './auth.mjs'
 
 function default_handler(request, response)
 {
@@ -76,7 +76,7 @@ async function assigngroup_handler(request, response)
     const url = new URL(request.url, 'http://' + config.server.ip);
     const input = Object.fromEntries(url.searchParams);
 
-    const output = await assigngroup(input);
+    const output = await assignMember(input);
     
     response.writeHead(200, { 'Content-Type': 'application/json' });
     response.end(JSON.stringify(output));
@@ -144,9 +144,27 @@ async function accesslist_handler(request, response)
     response.end(JSON.stringify(output));
 }
 
-async function newaccess_handler(request, response){}
+async function newaccess_handler(request, response)
+{
+    const url = new URL(request.url, 'http://' + config.server.ip);
+    const input = Object.fromEntries(url.searchParams);
 
-async function cancelaccess_handler(request, response){}
+    const output = await assignAccess(input);
+    
+    response.writeHead(200, { 'Content-Type': 'application/json' });
+    response.end(JSON.stringify(output));
+}
+
+async function cancelaccess_handler(request, response)
+{
+    const url = new URL(request.url, 'http://' + config.server.ip);
+    const input = Object.fromEntries(url.searchParams);
+
+    const output = await cancelAccess(input);
+    
+    response.writeHead(200, { 'Content-Type': 'application/json' });
+    response.end(JSON.stringify(output));
+}
 
 async function endpointslist_handler(request, response)
 {
@@ -194,7 +212,7 @@ export {
     default_handler, login_handler, register_handler, 
     userslist_handler, editusername_handler, deleteuser_handler,
     groupslist_handler, newgroup_handler, deletegroup_handler,
-    assigngroup_handler,
-    accesslist_handler, 
+    assigngroup_handler, cancelaccess_handler,
+    accesslist_handler, newaccess_handler,
     endpointslist_handler, newendpoint_handler, editendpoint_handler, deleteendpoint_handler
 };
