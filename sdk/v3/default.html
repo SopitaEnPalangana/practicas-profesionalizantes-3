@@ -15,8 +15,6 @@
 
 				//Register Form
 				this.registerForm = document.createElement('form');
-				this.registerForm.action = "/register";
-				this.registerForm.method = "post";
 				this.regTitle = document.createElement('h1');
 				this.regTitle.textContent = 'User Sign in';
 
@@ -32,7 +30,7 @@
 				this.passwordEntry.placeholder = 'Password here';
 				this.submitBtn = document.createElement('button');
 				this.submitBtn.innerText = 'Sign in';
-				this.submitBtn.type = "submit";
+				this.submitBtn.type = "button";
 
 				this.registerForm.appendChild(this.regTitle);
 				this.registerForm.appendChild(this.nameLabel);
@@ -103,21 +101,60 @@
 
 			}
 
-			onregisterclick()
+			// Función para calcular el hash SHA-256 de una cadena
+			async calcularHashSHA256(cadena)
+			{
+				const encoder = new TextEncoder();
+				const data = encoder.encode(cadena);
+				const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+				const hashArray = Array.from(new Uint8Array(hashBuffer));
+				const hashHex = hashArray.map(byte => byte.toString(16).padStart(2, '0')).join('');
+				return hashHex;
+			}
+
+			
+			async onregisterclick()
 			{
 				console.log("Ejecutando Registro");
-				this.messagep.innerText = " \n \n USER " + this.nameEntry.value + " REGISTERED"
+				
+				try
+				{
+					let username = this.nameEntry.value;
+					let key = await this.calcularHashSHA256(this.passwordEntry.value);
+					
+					const response = await fetch('/register', {
+						method: 'POST',
+						body: new URLSearchParams({ username, key })
+					});
+					
+					const output = await response.json();
+
+					if (output)
+					{
+						this.messagep.innerText = " \n \n USER " + username + " REGISTERED.";
+					}
+					else
+					{
+
+					}
+					
+				}
+				catch (error)
+				{
+					console.error(error);
+				}
+
 			}
 
 			async onloginclick()
 			{
 				
 				let username = this.logNameEntry.value;
-				let password = this.logPassEntry.value;
+				let key = await this.calcularHashSHA256(this.logPassEntry.value);
 				
 				const response = await fetch('/login', {
 					method: 'POST',
-					body: new URLSearchParams({ username, password })
+					body: new URLSearchParams({ username, key })
 				});
 				
 				const session = await response.json();
@@ -148,10 +185,11 @@
 
 				let username = this.currentUser;
 				let password = prompt("Contraseña para salir: ");
+				let key = await this.calcularHashSHA256(password);
 
 				const response = await fetch('/logout', {
 					method: 'POST',
-					body: new URLSearchParams({ username, password })
+					body: new URLSearchParams({ username, key })
 				});
 				
 				const session = await response.json();
@@ -196,7 +234,6 @@
 
 			}
 			
-
 			async onlogbtnclick()
 			{
 				console.log("Un usuario quiere registrar algo");

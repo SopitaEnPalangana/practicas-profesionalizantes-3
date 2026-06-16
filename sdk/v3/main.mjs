@@ -22,6 +22,16 @@ Aplique un diseño estructural conveniente para su resolución que permita el re
 forma clara.
 */
 
+
+/*
+3. Contenido abordado por el docente (28/5): 
+Efectúe una modificación con respecto al almacenamiento de las contraseñas de los usuarios. 
+Actualmente son textos planos visibles en la base de datos. Modifique el alta de usuario de modo tal que la contraseña se guarde 
+de manera cifrada empleando cifrado irreversible (SHA256). Adecúe la función de autenticación según corresponda. 
+¿password como campo resulta un nombre conveniente?
+
+*/
+
 import { createServer } from 'node:http';
 import { URL } from 'node:url';
 import { readFileSync } from 'node:fs';
@@ -185,16 +195,16 @@ function register_user(db, input)
     try 
     {
         const stmt = db.prepare(sql);
-        const row = stmt.get(input.username, input.password);
+        const row = stmt.get(input.username, input.key);
 
-        const result = 
+        const output =
         {
-            id: row.id,
-            username: input.username,
-            password: input.password
+            status: false,
+            result: input.username,
+            description: 'REGISTERED_USER'  
         };
         
-        return result;
+        return output;
     } 
     catch (err) 
     {
@@ -202,10 +212,10 @@ function register_user(db, input)
     }
 }
 
-async function login( username, password )
+async function login( username, key )
 {
     
-    let isAuthenticated = authenticate(username, password);
+    let isAuthenticated = authenticate(username, key);
 
     if ( isAuthenticated )
     {
@@ -239,9 +249,9 @@ async function login( username, password )
     //El retorno de esta función está representando si se devuelve o no un objeto de sesión.
 }
 
-function logout(username, password)
+function logout(username, key)
 {
-    let isAuthenticated = authenticate(username, password);
+    let isAuthenticated = authenticate(username, key);
 
     if ( isAuthenticated )
     {
@@ -336,7 +346,7 @@ async function login_handler(request, response)
         try 
         {
             // 4. Procesamos el login
-            const output = await login(input.username, input.password); //El resultado es nulo o un objeto de sesión
+            const output = await login(input.username, input.key); //El resultado es nulo o un objeto de sesión
 
             response.writeHead(200, { 'Content-Type': 'application/json' });
             response.end(JSON.stringify(output));
@@ -374,7 +384,7 @@ async function logout_handler(request, response)
 
         try 
         {
-            const output = await logout(input.username, input.password);
+            const output = await logout(input.username, input.key);
 
             response.writeHead(200, { 'Content-Type': 'application/json' });
             response.end(JSON.stringify(output));
