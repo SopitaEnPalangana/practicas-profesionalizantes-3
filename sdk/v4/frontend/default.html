@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="es">
+	<head>
+		<meta charset="UTF-8">
+		<title>Login</title>
+	</head>
+	<body></body>
+
+	<script type="text/javascript">
+		class LoginTryouts extends HTMLElement
+		{
+			constructor()
+			{
+				super()
+
+				//Register Form
+				this.registerForm = document.createElement('form');
+				this.regTitle = document.createElement('h1');
+				this.regTitle.textContent = 'User Sign in';
+
+				this.nameLabel = document.createElement('label');
+				this.nameLabel.textContent = 'Username: ';
+				this.nameEntry = document.createElement('input');
+				this.nameEntry.name = 'username';
+				this.nameEntry.placeholder = 'Username here';
+				this.passLabel = document.createElement('label')
+				this.passLabel.textContent = 'Password: ';
+				this.passwordEntry = document.createElement('input');
+				this.passwordEntry.name = 'password';
+				this.passwordEntry.placeholder = 'Password here';
+				this.submitBtn = document.createElement('button');
+				this.submitBtn.innerText = 'Sign in';
+				this.submitBtn.type = "button";
+
+				this.registerForm.appendChild(this.regTitle);
+				this.registerForm.appendChild(this.nameLabel);
+				this.registerForm.appendChild(this.nameEntry);
+				this.registerForm.appendChild(this.passLabel);
+				this.registerForm.appendChild(this.passwordEntry);
+				this.registerForm.appendChild(this.submitBtn);
+
+				//Login Form
+				this.loginForm = document.createElement('form');
+				this.loginTitle = document.createElement('h1');
+				this.loginTitle.textContent = 'User Login'
+
+				this.testText = document.createElement('p');
+				this.testText.innerText = `
+					Usuario para la prueba: juancito - password 1234
+					Miembro de grupo 01 
+					Endpoints habilitados: /print /log /help
+					No puede /sayHello ni /sayBye
+					`;
+
+				this.logName = document.createElement('label');
+				this.logName.textContent = 'Username: ';
+				this.logNameEntry = document.createElement('input');
+				this.logNameEntry.placeholder = 'your username';
+				this.logNameEntry.name = 'username';
+				this.logPass = document.createElement('label');
+				this.logPass.textContent = 'Password: ';
+				this.logPassEntry = document.createElement('input');
+				this.logPassEntry.name = 'password';
+				this.logPassEntry.placeholder = 'your password';
+				this.loginBtn = document.createElement('button');
+				this.loginBtn.innerText = 'Log in';
+				this.loginBtn.type = "button";
+
+				this.loginForm.appendChild(this.loginTitle);
+				this.loginForm.appendChild(this.testText);
+				this.loginForm.appendChild(this.logName);
+				this.loginForm.appendChild(this.logNameEntry);
+				this.loginForm.appendChild(this.logPass);
+				this.loginForm.appendChild(this.logPassEntry);
+				this.loginForm.appendChild(this.loginBtn);
+
+				this.contentsdiv = document.createElement('div');
+
+				this.messagep = document.createElement('p');
+				this.messagep.innerText = "";
+
+				this.logOutbtn = document.createElement('button');
+				this.logOutbtn.innerText = 'Log out';
+
+				this.printbtn = document.createElement('button');
+				this.printbtn.innerText = 'Print';
+				this.logbtn = document.createElement('button');
+				this.logbtn.innerText = 'Log';
+				this.helpbtn = document.createElement('button');
+				this.helpbtn.innerText = 'Help';
+				this.sayhellobtn = document.createElement('button');
+				this.sayhellobtn.innerText = 'Hello!';
+				this.saybyebtn = document.createElement('button');
+				this.saybyebtn.innerText = 'Bye!';
+
+				this.contentsdiv.appendChild(this.messagep);
+
+				this.appendChild(this.registerForm);
+				this.appendChild(this.loginForm);
+				this.appendChild(this.contentsdiv);
+
+			}
+
+			// Función para calcular el hash SHA-256 de una cadena
+			async calcularHashSHA256(cadena)
+			{
+				const encoder = new TextEncoder();
+				const data = encoder.encode(cadena);
+				const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+				const hashArray = Array.from(new Uint8Array(hashBuffer));
+				const hashHex = hashArray.map(byte => byte.toString(16).padStart(2, '0')).join('');
+				return hashHex;
+			}
+
+			
+			async onregisterclick()
+			{
+				console.log("Ejecutando Registro");
+				
+				try
+				{
+					let username = this.nameEntry.value;
+					let key = await this.calcularHashSHA256(this.passwordEntry.value);
+					
+					const response = await fetch('http://127.0.0.1:4000/register', {
+						method: 'POST',
+						body: new URLSearchParams({ username, key })
+					});
+					
+					const output = await response.json();
+
+					if (output)
+					{
+						this.messagep.innerText = " \n \n USER " + username + " REGISTERED.";
+					}
+					else
+					{
+
+					}
+					
+				}
+				catch (error)
+				{
+					console.error(error);
+				}
+
+			}
+
+			async onloginclick()
+			{
+				
+				let username = this.logNameEntry.value;
+				let key = await this.calcularHashSHA256(this.logPassEntry.value);
+				
+				const response = await fetch('http://127.0.0.1:4000/login', {
+					method: 'POST',
+					body: new URLSearchParams({ username, key })
+				});
+				
+				const session = await response.json();
+				
+				if (session != null && session.status === 'enabled')
+				{
+					console.log("Ejecutando Login de " + username);
+					this.currentUser = username;
+
+					this.messagep.innerText = " \n \n USER " + username + " LOGGED IN"
+					this.contentsdiv.appendChild(this.logOutbtn);
+					this.contentsdiv.appendChild(this.printbtn);
+					this.contentsdiv.appendChild(this.logbtn);
+					this.contentsdiv.appendChild(this.helpbtn);
+					this.contentsdiv.appendChild(this.sayhellobtn);
+					this.contentsdiv.appendChild(this.saybyebtn);
+				
+				}
+				else
+				{
+					console.log("auth error")
+				}
+			}
+
+			async onlogoutclick()
+			{
+				console.log("Usuario saliendo del sistema: " + this.currentUser);
+
+				let username = this.currentUser;
+				let password = prompt("Contraseña para salir: ");
+				let key = await this.calcularHashSHA256(password);
+
+				const response = await fetch('http://127.0.0.1:4000/logout', {
+					method: 'POST',
+					body: new URLSearchParams({ username, key })
+				});
+				
+				const session = await response.json();
+
+				if (session != null && session.status === 'disabled')
+				{
+					this.currentUser = null;
+					this.messagep.innerText = "";
+
+					this.contentsdiv.removeChild(this.logOutbtn);
+					this.contentsdiv.removeChild(this.printbtn);
+					this.contentsdiv.removeChild(this.logbtn);
+					this.contentsdiv.removeChild(this.helpbtn);
+					this.contentsdiv.removeChild(this.sayhellobtn);
+					this.contentsdiv.removeChild(this.saybyebtn);
+				}
+
+			}
+
+			async onprintbtnclick()
+			{
+				console.log("Un usuario quiere imprimir");
+
+				let username = this.currentUser;
+
+				const response = await fetch('http://127.0.0.1:4000/print', {
+					method: 'POST',
+					body: new URLSearchParams({ username })
+				});
+
+				const isAllowed =  await response.json();
+
+				if(isAllowed)
+				{
+					const printingSim = prompt("A Imprimir: ");
+					this.messagep.innerText = this.currentUser + " imprimio " + printingSim;
+				}
+				else
+				{
+					this.messagep.style = 'color: red';
+					this.messagep.innerText = this.currentUser + " no tiene permiso para imprimir.";
+				}
+
+			}
+			
+			async onlogbtnclick()
+			{
+				console.log("Un usuario quiere registrar algo");
+
+				let username = this.currentUser;
+
+				const response = await fetch('http://127.0.0.1:4000/log', {
+					method: 'POST',
+					body: new URLSearchParams({ username })
+				});
+
+				const isAllowed =  await response.json();
+
+				if(isAllowed)
+				{
+					const printingSim = prompt("Registro a ingresar: ");
+					this.messagep.innerText = this.currentUser + " agregó " + printingSim;
+				}
+				else
+				{
+					this.messagep.style = 'color: red';
+					this.messagep.innerText = this.currentUser + " no tiene permiso para ingresar un registro.";
+				}
+			}
+
+			async onhelpbtnclick()
+			{
+				console.log("Un usuario quiere ayudar");
+
+				let username = this.currentUser;
+
+				const response = await fetch('http://127.0.0.1:4000/help', {
+					method: 'POST',
+					body: new URLSearchParams({ username })
+				});
+
+				const isAllowed =  await response.json();
+
+				if(isAllowed)
+				{
+					const printingSim = prompt("Ayuda a brindar: ");
+					this.messagep.innerText = this.currentUser + " ayudó en  " + printingSim;
+				}
+				else
+				{
+					this.messagep.style = 'color: red';
+					this.messagep.innerText = this.currentUser + " no tiene permiso para ayudar.";
+				}
+			}
+
+			async onsayhellobtnclick()
+			{
+				console.log("Un usuario quiere decir Hola");
+
+				let username = this.currentUser;
+
+				const response = await fetch('http://127.0.0.1:4000/sayHello', {
+					method: 'POST',
+					body: new URLSearchParams({ username })
+				});
+
+				const isAllowed =  await response.json();
+
+				if(isAllowed)
+				{
+					const printingSim = prompt("Ingrese su saludo: ");
+					this.messagep.innerText = this.currentUser + " saluda:  " + printingSim;
+				}
+				else
+				{
+					this.messagep.style = 'color: red';
+					this.messagep.innerText = this.currentUser + " no tiene permiso para decir hola.";
+				}
+			}
+
+			async onsaybyebtnclick()
+			{
+				console.log("Un usuario quiere decir Adios");
+
+				let username = this.currentUser;
+
+				const response = await fetch('http://127.0.0.1:4000/sayBye', {
+					method: 'POST',
+					body: new URLSearchParams({ username })
+				});
+
+				const isAllowed =  await response.json();
+
+				if(isAllowed)
+				{
+					const printingSim = prompt("Ingrese su saludo: ");
+					this.messagep.innerText = this.currentUser + " se despide:  " + printingSim;
+				}
+				else
+				{
+					this.messagep.style = 'color: red';
+					this.messagep.innerText = this.currentUser + " no tiene permiso para decir adiós.";
+				}
+			}
+
+			connectedCallback()
+			{
+				this.submitBtn.onclick = this.onregisterclick.bind(this);
+				this.loginBtn.onclick = this.onloginclick.bind(this);
+				this.logOutbtn.onclick = this.onlogoutclick.bind(this);
+				this.printbtn.onclick = this.onprintbtnclick.bind(this);
+				this.logbtn.onclick = this.onlogbtnclick.bind(this);
+				this.helpbtn.onclick = this.onhelpbtnclick.bind(this);
+				this.sayhellobtn.onclick = this.onsayhellobtnclick.bind(this);
+				this.saybyebtn.onclick = this.onsaybyebtnclick.bind(this);
+			}
+
+			disconnectedCallback()
+			{
+				this.submitBtn.onclick = null;
+				this.loginBtn.onclick = null;
+				this.logOutbtn.onclick = null;
+				this.printbtn.onclick = null;
+				this.logbtn.onclick = null;
+				this.helpbtn.onclick = null;
+				this.sayhellobtn.onclick = null;
+				this.saybyebtn.onclick = null;
+			}
+		}
+
+		customElements.define('x-logintryouts', LoginTryouts);
+		function main()
+		{
+			let miLogin = new LoginTryouts();
+			document.body.appendChild(miLogin);
+		}
+		window.onload = main;
+
+	</script>
+</html>
+
+
+
